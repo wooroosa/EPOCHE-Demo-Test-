@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0D1B3E">
+<title>EPOCHE — 팀장 미래역량 진단</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Serif+KR:wght@700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ══════════════════════════════════════════
+   TOKENS & RESET
+══════════════════════════════════════════ */
+:root {
+  --navy:      #0D1B3E;
+  --navy2:     #1A2F5C;
+  --gold:      #C9A84C;
+  --gold-lt:   #E8C878;
+  --bg:        #F4F3EF;
+  --white:     #FFFFFF;
+  --text:      #1A1A2E;
+  --muted:     #6B7280;
+  --border:    #E2DDD4;
+  --sensing:   #2E6DB4;
+  --insight:   #1F7C4D;
+  --decision:  #B34700;
+  --exec:      #7B1E00;
+  --reflect:   #5B2182;
+  --coord:     #006B6B;
+
+  /* spacing */
+  --s4:  4px;  --s8:  8px;  --s12: 12px; --s16: 16px;
+  --s20: 20px; --s24: 24px; --s32: 32px; --s40: 40px;
+
+  /* radius */
+  --r4: 4px; --r8: 8px; --r12: 12px; --r20: 20px;
+
+  /* font sizes – fluid */
+  --fs-xs:  11px; --fs-sm: 13px; --fs-base: 15px;
+  --fs-lg:  18px; --fs-xl: 22px; --fs-2xl: 28px; --fs-3xl: 40px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: var(--fs-base);
+  line-height: 1.6;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+button { cursor: pointer; font-family: inherit; }
+input  { font-family: inherit; }
+
+/* ══════════════════════════════════════════
+   SCREEN SYSTEM
+══════════════════════════════════════════ */
+.screen { display: none; min-height: 100dvh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ══════════════════════════════════════════
+   LANDING
+══════════════════════════════════════════ */
+#screen-landing {
+  background: var(--navy);
+  align-items: center;
+  justify-content: center;
+  padding: var(--s24) var(--s20);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.land-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(201,168,76,.12);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+.land-ring:nth-child(1) { width: min(560px,140vw); height: min(560px,140vw); }
+.land-ring:nth-child(2) { width: min(380px, 95vw); height: min(380px, 95vw); }
+
+.land-inner { position: relative; z-index: 1; max-width: 560px; width: 100%; }
+
+.land-logo {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(36px, 10vw, 56px);
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: clamp(4px, 2vw, 10px);
+  margin-bottom: var(--s8);
+  animation: fadeUp .7s ease both;
+}
+.land-tagline {
+  font-size: var(--fs-xs);
+  color: rgba(201,168,76,.55);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: clamp(32px,6vh,52px);
+  animation: fadeUp .7s .1s ease both;
+}
+.land-title {
+  font-size: clamp(18px, 4.5vw, 26px);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.5;
+  margin-bottom: var(--s12);
+  animation: fadeUp .7s .2s ease both;
+}
+.land-desc {
+  font-size: clamp(12px, 3vw, 14px);
+  color: rgba(255,255,255,.55);
+  line-height: 1.9;
+  margin-bottom: clamp(28px,5vh,44px);
+  animation: fadeUp .7s .3s ease both;
+}
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s8);
+  justify-content: center;
+  margin-bottom: clamp(28px,5vh,44px);
+  animation: fadeUp .7s .4s ease both;
+}
+.pill {
+  padding: 5px 13px;
+  border-radius: var(--r20);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--white);
+}
+.btn-cta {
+  display: inline-block;
+  background: var(--gold);
+  color: var(--navy);
+  border: none;
+  padding: 15px 40px;
+  border-radius: var(--r4);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  letter-spacing: .5px;
+  transition: all .2s;
+  animation: fadeUp .7s .5s ease both;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+}
+.btn-cta:active { transform: scale(.97); }
+@media(hover:hover){ .btn-cta:hover { background: var(--gold-lt); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,168,76,.3); } }
+
+.meta-row {
+  display: flex;
+  gap: clamp(20px,6vw,48px);
+  justify-content: center;
+  margin-top: clamp(28px,5vh,44px);
+  animation: fadeUp .7s .6s ease both;
+}
+.meta-item { text-align: center; }
+.meta-num { font-size: clamp(22px,6vw,32px); font-weight: 900; color: var(--gold); }
+.meta-lbl { font-size: 10px; color: rgba(255,255,255,.35); margin-top: 2px; }
+
+/* ══════════════════════════════════════════
+   INTRO
+══════════════════════════════════════════ */
+#screen-intro {
+  background: var(--white);
+  align-items: center;
+  justify-content: center;
+  padding: var(--s32) var(--s20);
+}
+.intro-wrap { max-width: 540px; width: 100%; }
+.intro-wrap h2 {
+  font-size: clamp(var(--fs-lg), 4vw, var(--fs-xl));
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: var(--s20);
+}
+.intro-box {
+  background: var(--bg);
+  border-radius: var(--r12);
+  padding: var(--s20);
+  margin-bottom: var(--s24);
+}
+.intro-row {
+  display: flex;
+  gap: var(--s12);
+  padding: var(--s12) 0;
+  border-bottom: 1px solid var(--border);
+}
+.intro-row:last-child { border-bottom: none; padding-bottom: 0; }
+.intro-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+.intro-text { font-size: var(--fs-sm); line-height: 1.75; color: var(--text); }
+.intro-text strong { color: var(--navy); }
+
+.scale-grid {
+  display: flex;
+  gap: var(--s8);
+  flex-wrap: wrap;
+  margin-top: var(--s12);
+}
+.scale-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.scale-dot {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-full {
+  width: 100%;
+  background: var(--navy);
+  color: var(--white);
+  border: none;
+  padding: 16px;
+  border-radius: var(--r8);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  transition: background .2s;
+  touch-action: manipulation;
+}
+@media(hover:hover){ .btn-full:hover { background: var(--navy2); } }
+
+/* ══════════════════════════════════════════
+   DIAGNOSTIC
+══════════════════════════════════════════ */
+#screen-diag { background: var(--bg); }
+
+/* sticky header */
+.diag-hdr {
+  background: var(--navy);
+  padding: var(--s12) var(--s16);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s8);
+}
+.diag-hdr-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.hdr-logo {
+  font-family: 'Noto Serif KR', serif;
+  color: var(--gold);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+.hdr-counter { font-size: var(--fs-xs); color: rgba(255,255,255,.45); }
+.prog-wrap { display: flex; align-items: center; gap: var(--s8); }
+.prog-bar {
+  flex: 1;
+  height: 3px;
+  background: rgba(255,255,255,.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 2px;
+  transition: width .4s ease;
+  width: 0%;
+}
+.prog-pct { font-size: var(--fs-xs); color: var(--gold); min-width: 30px; text-align: right; }
+
+/* body scroll area */
+.diag-body {
+  flex: 1;
+  padding: var(--s16);
+  max-width: 700px;
+  margin: 0 auto;
+  width: 100%;
+  padding-bottom: 90px; /* room for sticky footer */
+}
+
+/* page */
+.d-page { display: none; }
+.d-page.active { display: block; }
+
+/* pillar section */
+.p-section { margin-bottom: var(--s24); }
+.p-hdr {
+  display: flex;
+  align-items: center;
+  gap: var(--s8);
+  padding: var(--s12) var(--s16);
+  border-radius: var(--r8) var(--r8) 0 0;
+}
+.p-hdr-icon { font-size: 16px; }
+.p-hdr-en { font-size: var(--fs-base); font-weight: 700; color: var(--white); }
+.p-hdr-kr { font-size: var(--fs-xs); color: rgba(255,255,255,.55); margin-left: 4px; }
+
+/* competency card */
+.c-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: var(--s16) var(--s16);
+}
+.c-card:last-child { border-radius: 0 0 var(--r8) var(--r8); }
+
+.c-title {
+  display: flex;
+  align-items: center;
+  gap: var(--s8);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: var(--s16);
+}
+.c-num {
+  background: var(--navy);
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* question row */
+.q-row {
+  padding: var(--s12) 0;
+  border-bottom: 1px dashed var(--border);
+}
+.q-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+.q-label {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-bottom: var(--s8);
+}
+.lbl-r { background: #DBEAFE; color: #1D4ED8; }
+.lbl-u { background: #FED7AA; color: #C2410C; }
+
+.q-text {
+  font-size: clamp(12.5px, 3.2vw, 14px);
+  line-height: 1.75;
+  color: var(--text);
+  margin-bottom: var(--s12);
+}
+
+/* ── Likert ── */
+.likert-block { width: 100%; }
+
+.likert-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s8);
+}
+/* 실제 선택 영역은 div로 구현 — label 대신 */
+.lik-opt {
+  display: flex;
+  align-items: center;
+  gap: var(--s12);
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r8);
+  padding: var(--s12) var(--s16);
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  /* 터치 영역 확보 */
+  min-height: 48px;
+}
+.lik-opt.selected {
+  background: var(--navy);
+  border-color: var(--navy);
+}
+.lik-circle {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: all .15s;
+  pointer-events: none;
+}
+.lik-opt.selected .lik-circle {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--navy);
+}
+.lik-text {
+  font-size: var(--fs-sm);
+  color: var(--text);
+  transition: color .15s;
+  pointer-events: none;
+}
+.lik-opt.selected .lik-text { color: var(--white); font-weight: 600; }
+
+/* tablet+ : horizontal */
+@media (min-width: 600px) {
+  .likert-list { flex-direction: row; }
+  .lik-opt {
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--s12) var(--s8);
+    text-align: center;
+    gap: var(--s8);
+    min-height: 72px;
+  }
+  .lik-text { font-size: 11px; line-height: 1.4; }
+  .lik-circle { width: 34px; height: 34px; font-size: 14px; }
+}
+
+/* sticky footer nav */
+.diag-ftr {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: var(--s12) var(--s16);
+  display: flex;
+  align-items: center;
+  gap: var(--s12);
+  z-index: 200;
+  /* safe area for notch phones */
+  padding-bottom: max(var(--s12), env(safe-area-inset-bottom));
+}
+.btn-prev {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--muted);
+  padding: 11px var(--s20);
+  border-radius: var(--r8);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  transition: all .15s;
+  white-space: nowrap;
+}
+@media(hover:hover){ .btn-prev:hover { background: var(--bg); } }
+.btn-next {
+  flex: 1;
+  background: var(--navy);
+  color: var(--white);
+  border: none;
+  padding: 12px;
+  border-radius: var(--r8);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  transition: background .15s;
+}
+@media(hover:hover){ .btn-next:hover { background: var(--navy2); } }
+.warn-msg {
+  font-size: 11px;
+  color: #DC2626;
+  display: none;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════
+   RESULT
+══════════════════════════════════════════ */
+#screen-result { background: var(--bg); }
+
+.res-hdr {
+  background: var(--navy);
+  padding: var(--s20) var(--s16);
+  text-align: center;
+}
+.res-hdr .logo {
+  font-family: 'Noto Serif KR', serif;
+  color: var(--gold);
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  letter-spacing: 4px;
+  margin-bottom: var(--s4);
+}
+.res-hdr .sub { font-size: var(--fs-xs); color: rgba(255,255,255,.4); letter-spacing: 2px; }
+
+.res-body { max-width: 720px; margin: 0 auto; padding: var(--s20) var(--s16) var(--s40); width: 100%; }
+
+/* banner */
+.res-banner {
+  background: var(--navy);
+  border-radius: var(--r12);
+  padding: var(--s20) var(--s24);
+  margin-bottom: var(--s20);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s16);
+}
+.res-banner-left h2 { font-size: clamp(15px, 4vw, 18px); font-weight: 700; color: var(--white); margin-bottom: 3px; }
+.res-banner-left p  { font-size: var(--fs-xs); color: rgba(255,255,255,.4); }
+.res-score-num { font-size: clamp(44px, 12vw, 60px); font-weight: 900; color: var(--gold); line-height: 1; }
+.res-score-lbl { font-size: 10px; color: rgba(255,255,255,.35); margin-top: 3px; }
+
+/* section title */
+.sec-title {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: var(--s12);
+  display: flex;
+  align-items: center;
+  gap: var(--s8);
+}
+
+/* card */
+.res-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r12);
+  padding: var(--s20);
+  margin-bottom: var(--s16);
+}
+
+/* radar */
+.radar-wrap { position: relative; height: min(300px, 75vw); max-height: 320px; }
+
+/* pillar bars */
+.ps-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s8);
+  margin-bottom: var(--s12);
+}
+.ps-row:last-child { margin-bottom: 0; }
+.ps-name { font-size: 12px; font-weight: 600; min-width: 60px; }
+.ps-track { flex: 1; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+.ps-fill  { height: 100%; border-radius: 4px; transition: width 1s ease; width: 0; }
+.ps-val   { font-size: 12px; font-weight: 700; min-width: 30px; text-align: right; }
+
+/* type compare */
+.type-row { display: flex; gap: var(--s12); margin-bottom: var(--s16); }
+.type-box {
+  flex: 1; border-radius: var(--r8);
+  padding: var(--s16) var(--s12);
+  text-align: center;
+}
+.type-box.r { background: #EFF6FF; }
+.type-box.u { background: #FFF7ED; }
+.type-lbl   { font-size: 10px; font-weight: 700; margin-bottom: var(--s4); }
+.type-lbl.r { color: #1D4ED8; }
+.type-lbl.u { color: #C2410C; }
+.type-val   { font-size: clamp(28px, 8vw, 36px); font-weight: 900; line-height: 1; }
+.type-val.r { color: #1D4ED8; }
+.type-val.u { color: #C2410C; }
+.type-sub   { font-size: 10px; color: var(--muted); margin-top: 3px; }
+.type-comment { font-size: var(--fs-xs); color: var(--muted); line-height: 1.7; }
+
+/* strength / dev lists */
+.top-list { list-style: none; display: flex; flex-direction: column; gap: var(--s8); }
+.top-list li {
+  font-size: var(--fs-sm);
+  padding: var(--s12) var(--s16);
+  border-radius: var(--r8);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s8);
+}
+.top-list.str li { background: #F0FDF4; color: #166534; }
+.top-list.dev li { background: #FEF2F2; color: #991B1B; }
+
+/* two-col grid on larger screens */
+@media (min-width: 600px) {
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s16); }
+  .two-col .res-card { margin-bottom: 0; }
+}
+
+/* recommend */
+.rec-card {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+  border-radius: var(--r12);
+  padding: var(--s20) var(--s24);
+  margin-bottom: var(--s20);
+}
+.rec-card .sec-title { color: var(--gold); margin-bottom: var(--s16); }
+.rec-grid { display: grid; grid-template-columns: 1fr; gap: var(--s12); }
+@media (min-width: 480px) { .rec-grid { grid-template-columns: repeat(2, 1fr); } }
+.rec-item {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(201,168,76,.2);
+  border-radius: var(--r8);
+  padding: var(--s16);
+}
+.rec-tag   { font-size: 10px; color: var(--gold); font-weight: 700; margin-bottom: var(--s8); }
+.rec-title { font-size: var(--fs-sm); color: var(--white); font-weight: 500; line-height: 1.45; }
+
+/* restart btn */
+.btn-restart {
+  display: block;
+  margin: 0 auto var(--s40);
+  background: var(--gold);
+  color: var(--navy);
+  border: none;
+  padding: 14px 40px;
+  border-radius: var(--r8);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  transition: background .2s;
+}
+@media(hover:hover){ .btn-restart:hover { background: var(--gold-lt); } }
+
+/* ══════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeUp .4s ease both; }
+
+/* ══════════════════════════════════════════
+   UTILITY
+══════════════════════════════════════════ */
+.mb0  { margin-bottom: 0 !important; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ══════════ LANDING ══════════ -->
+<div id="screen-landing" class="screen active">
+  <div class="land-ring"></div>
+  <div class="land-ring"></div>
+  <div class="land-inner">
+    <div class="land-logo">EPOCHE</div>
+    <div class="land-tagline">Future Capabilities System</div>
+    <h1 class="land-title">AI 특이점 시대,<br>팀장의 미래역량 진단</h1>
+    <p class="land-desc">
+      에드문트 후설의 '판단중지(Epoché)' 개념에서 출발한<br>
+      EPOCHE 미래역량 체계로 인간 고유역량(Reskill)과<br>
+      AI 증강역량(Upskill)을 통합 진단합니다.
+    </p>
+    <div class="pill-row">
+      <span class="pill" style="background:var(--sensing)">① 감지</span>
+      <span class="pill" style="background:var(--insight)">② 해석</span>
+      <span class="pill" style="background:var(--decision)">③ 판단</span>
+      <span class="pill" style="background:var(--exec)">④ 실행</span>
+      <span class="pill" style="background:var(--reflect)">⑤ 성찰</span>
+      <span class="pill" style="background:var(--coord)">⑥ 조율</span>
+    </div>
+    <button class="btn-cta" onclick="go('intro')">진단 시작하기 →</button>
+    <div class="meta-row">
+      <div class="meta-item"><div class="meta-num">72</div><div class="meta-lbl">진단 문항</div></div>
+      <div class="meta-item"><div class="meta-num">24</div><div class="meta-lbl">미래역량</div></div>
+      <div class="meta-item"><div class="meta-num">15분</div><div class="meta-lbl">소요 시간</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ INTRO ══════════ -->
+<div id="screen-intro" class="screen">
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:var(--s32) var(--s20);">
+    <div class="intro-wrap fade-in">
+      <h2>진단 시작 전 안내</h2>
+      <div class="intro-box">
+        <div class="intro-row">
+          <span class="intro-icon">📋</span>
+          <div class="intro-text"><strong>총 72문항</strong> — 24개 역량별 3문항 (Reskill 2개 + Upskill 1개)</div>
+        </div>
+        <div class="intro-row">
+          <span class="intro-icon">⏱️</span>
+          <div class="intro-text">소요 시간 약 <strong>15~20분</strong>. 중간 중단 시 결과가 초기화됩니다.</div>
+        </div>
+        <div class="intro-row">
+          <span class="intro-icon">⭐</span>
+          <div class="intro-text">
+            <strong>현재 나의 실제 행동</strong>을 기준으로 솔직하게 응답해 주세요.
+            <div class="scale-grid">
+              <div class="scale-item"><div class="scale-dot">1</div>전혀 아님</div>
+              <div class="scale-item"><div class="scale-dot">2</div>아님</div>
+              <div class="scale-item"><div class="scale-dot">3</div>보통</div>
+              <div class="scale-item"><div class="scale-dot">4</div>그러함</div>
+              <div class="scale-item"><div class="scale-dot">5</div>매우 그러함</div>
+            </div>
+          </div>
+        </div>
+        <div class="intro-row">
+          <span class="intro-icon">🔒</span>
+          <div class="intro-text">응답 결과는 <strong>역량 개발 목적</strong>으로만 활용되며 인사 평가와 무관합니다.</div>
+        </div>
+      </div>
+      <button class="btn-full" onclick="go('diag')">진단 시작 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DIAGNOSTIC ══════════ -->
+<div id="screen-diag" class="screen">
+  <header class="diag-hdr">
+    <div class="diag-hdr-top">
+      <div class="hdr-logo">EPOCHE</div>
+      <div class="hdr-counter" id="hdr-counter">0 / 72 완료</div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+      <div class="prog-pct" id="prog-pct">0%</div>
+    </div>
+  </header>
+
+  <div class="diag-body" id="diag-body"></div>
+
+  <footer class="diag-ftr">
+    <button class="btn-prev" id="btn-prev" onclick="changePage(-1)">← 이전</button>
+    <span class="warn-msg" id="warn-msg">⚠ 미응답 문항 있음</span>
+    <button class="btn-next" id="btn-next" onclick="changePage(1)">다음 →</button>
+  </footer>
+</div>
+
+<!-- ══════════ RESULT ══════════ -->
+<div id="screen-result" class="screen">
+  <header class="res-hdr">
+    <div class="logo">EPOCHE</div>
+    <div class="sub">미래역량 진단 결과</div>
+  </header>
+  <div class="res-body">
+
+    <div class="res-banner">
+      <div class="res-banner-left">
+        <h2>팀장 미래역량 진단 결과</h2>
+        <p>5+1 Pillars · 24역량 · 72문항</p>
+      </div>
+      <div style="text-align:right">
+        <div class="res-score-num" id="tot-score">—</div>
+        <div class="res-score-lbl">종합 점수 / 100점</div>
+      </div>
+    </div>
+
+    <!-- Radar -->
+    <div class="res-card mb0" style="margin-bottom:var(--s16)">
+      <div class="sec-title">🕸 역량군별 레이더 차트</div>
+      <div class="radar-wrap"><canvas id="radarChart"></canvas></div>
+    </div>
+
+    <!-- Pillar bars -->
+    <div class="res-card" style="margin-bottom:var(--s16)">
+      <div class="sec-title">📊 역량군별 점수</div>
+      <div id="pillar-bars"></div>
+    </div>
+
+    <!-- Reskill vs Upskill -->
+    <div class="res-card" style="margin-bottom:var(--s16)">
+      <div class="sec-title">🔄 Reskill vs Upskill 비교</div>
+      <div class="type-row">
+        <div class="type-box r">
+          <div class="type-lbl r">RESKILL</div>
+          <div class="type-val r" id="r-val">—</div>
+          <div class="type-sub">인간 고유역량</div>
+        </div>
+        <div class="type-box u">
+          <div class="type-lbl u">UPSKILL</div>
+          <div class="type-val u" id="u-val">—</div>
+          <div class="type-sub">AI 증강역량</div>
+        </div>
+      </div>
+      <p class="type-comment" id="ru-comment"></p>
+    </div>
+
+    <!-- Strength / Dev -->
+    <div class="two-col" style="margin-bottom:var(--s16)">
+      <div class="res-card mb0">
+        <div class="sec-title">💪 강점 역량 TOP 3</div>
+        <ul class="top-list str" id="str-list"></ul>
+      </div>
+      <div class="res-card mb0">
+        <div class="sec-title">🌱 개발 필요 TOP 3</div>
+        <ul class="top-list dev" id="dev-list"></ul>
+      </div>
+    </div>
+
+    <!-- Recommend -->
+    <div class="rec-card">
+      <div class="sec-title">📚 맞춤형 역량 개발 추천</div>
+      <div class="rec-grid" id="rec-grid"></div>
+    </div>
+
+    <button class="btn-restart" onclick="restart()">↺ 다시 진단하기</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+   JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+/* ── DATA ── */
+const PILLARS = [
+  { id:'sensing',  en:'Sensing',        kr:'감지', icon:'👁', color:'#2E6DB4', comps:[1,2,3,4] },
+  { id:'insight',  en:'Insight',        kr:'해석', icon:'🔍', color:'#1F7C4D', comps:[5,6,7,8,9,10] },
+  { id:'decision', en:'Decision Making',kr:'판단', icon:'⚖️', color:'#B34700', comps:[11,12,13,14] },
+  { id:'exec',     en:'Execution',      kr:'실행', icon:'🚀', color:'#7B1E00', comps:[15,16,17] },
+  { id:'reflect',  en:'Reflection',     kr:'성찰', icon:'🪞', color:'#5B2182', comps:[18,19,20] },
+  { id:'coord',    en:'Coordination',   kr:'조율', icon:'🤝', color:'#006B6B', comps:[21,22,23,24] },
+];
+const COMPS = [
+  {no:1, name:'정보 네트워킹',   pid:'sensing'},
+  {no:2, name:'변화감지력',      pid:'sensing'},
+  {no:3, name:'위기식별력',      pid:'sensing'},
+  {no:4, name:'다양성 추구',     pid:'sensing'},
+  {no:5, name:'입체적 분석력',   pid:'insight'},
+  {no:6, name:'비판적 사고력',   pid:'insight'},
+  {no:7, name:'통합적 사고',     pid:'insight'},
+  {no:8, name:'가설제시 능력',   pid:'insight'},
+  {no:9, name:'상황분석력',      pid:'insight'},
+  {no:10,name:'시스템사고',      pid:'insight'},
+  {no:11,name:'방향설정력',      pid:'decision'},
+  {no:12,name:'공감적 설득력',   pid:'decision'},
+  {no:13,name:'자원관리',        pid:'decision'},
+  {no:14,name:'리스크관리',      pid:'decision'},
+  {no:15,name:'수행성과 관리',   pid:'exec'},
+  {no:16,name:'추진복원력',      pid:'exec'},
+  {no:17,name:'검증능력',        pid:'exec'},
+  {no:18,name:'메타인지',        pid:'reflect'},
+  {no:19,name:'학습민첩성',      pid:'reflect'},
+  {no:20,name:'혁신추진력',      pid:'reflect'},
+  {no:21,name:'갈등조정력',      pid:'coord'},
+  {no:22,name:'Alignment 조정력',pid:'coord'},
+  {no:23,name:'관계능력',        pid:'coord'},
+  {no:24,name:'소통능력',        pid:'coord'},
+];
+const QS = {
+  1: ["나는 업무에 필요한 정보를 얻기 위해 다양한 이해관계자와 협력적 관계를 지속적으로 유지한다.",
+      "나는 업무와 관련된 최신 정보를 얻을 수 있는 복수의 정보 채널(사람, 매체, 플랫폼 등)을 확보하고 적극적으로 활용한다.",
+      "나는 AI 도구를 활용하여 업무 관련 정보를 체계적으로 수집하고, 팀원들이 활용할 수 있도록 정리하여 공유한다."],
+  2: ["나는 사업에 영향을 미치는 환경 변화의 맥락 간극(Context Gap)을 파악하여 도출한다.",
+      "나는 감지된 환경 변화가 우리 사업에 미치는 비즈니스 임팩트(Business Impact)를 구체적으로 도출한다.",
+      "나는 AI를 활용하여 시계열 데이터에서 급속히 변화하는 주요 패턴과 신호를 식별한다."],
+  3: ["나는 비즈니스 임팩트에서 우리 사업에 대한 위협요인을 구체적으로 파악한다.",
+      "나는 파악된 위협요인과 기회요인의 영향도를 분석하여 우선순위를 정한다.",
+      "나는 AI 기반 모니터링 도구를 활용하여 주요 성과 지표의 이상 변동을 신속히 감지하고 대응한다."],
+  4: ["나는 업무에서 당연하게 받아들여지는 기존 방식에 의문을 제기하고 새로운 가능성을 탐색한다.",
+      "나는 기존에 설정된 업무 범위를 넘어서는 영역을 능동적으로 탐색하고 새로운 접근을 시도한다.",
+      "나는 AI를 활용하여 타 산업·문화권의 이질적인 해결 사례를 탐색하고 우리 업무에의 적용 가능성을 검토한다."],
+  5: ["나는 수집된 정보들 간의 상호관계와 패턴을 분석하여 의미를 도출한다.",
+      "나는 분석 결과를 바탕으로 업무에 바로 활용할 수 있는 구체적인 방안을 제시한다.",
+      "나는 업무 관련 데이터를 AI 분석 도구에 제공하여 다각도의 패턴과 인사이트를 도출한다."],
+  6: ["나는 타인의 주장이나 결론에 대해 오류와 편향의 가능성을 비판적으로 점검한다.",
+      "나는 자신의 주장이나 결론에 대해서도 오류와 편향 가능성을 스스로 점검한다.",
+      "나는 AI를 역으로 활용하여 자신의 주장이나 분석 결과의 논리적 허점을 비판적으로 검증한다."],
+  7: ["나는 대립하거나 모순되는 요소들 간의 관계를 조정하고 통합할 수 있는 공통점을 찾아낸다.",
+      "나는 공통 패턴과 통합점을 상위 개념이나 전체 시스템의 관점에서 재구성한다.",
+      "나는 상충되는 정보나 관점을 AI에 제시하고 통합적 시각에서 새로운 결론 도출을 시도한다."],
+  8: ["나는 관찰된 현상과 데이터를 바탕으로 인과관계를 추론하여 미래를 예측한다.",
+      "나는 제시된 가설의 타당성과 실현 가능성을 다양한 근거를 통해 검증하고 정리한다.",
+      "나는 AI를 활용하여 목표와 조건에 기반한 다양한 시나리오를 발산적으로 탐색하고 가능성을 평가한다."],
+  9: ["나는 조직의 목표달성을 위해 현재 상황에서 필요한 핵심 활동을 구체적으로 제시한다.",
+      "나는 필요한 활동들의 우선순위를 명확한 기준에 따라 설정한다.",
+      "나는 AI를 활용하여 자신의 분석 결과를 반대 관점에서 검토하고 사각지대와 편향을 점검한다."],
+  10:["나는 개별 사안의 단기적 효과와 전체 조직에 미치는 장기적 효과를 함께 고려하여 판단한다.",
+      "나는 개별 사안이 조직 전체에 미치는 영향과 파급효과를 종합적으로 파악한다.",
+      "나는 AI를 통해 주요 변수 간의 연쇄적 상호작용을 분석하고 시스템 내 파급 경로를 파악한다."],
+  11:["나는 팀의 목표에 초점을 맞추어 구성원들의 실행 방안과 행동을 일관성 있게 조정한다.",
+      "나는 목표 설정과 의사결정 과정에 팀원들을 적극적으로 참여시킨다.",
+      "나는 AI를 활용하여 설정한 비전과 목표의 실현 가능성과 실행 우선순위를 데이터 기반으로 검토한다."],
+  12:["나는 목표 달성의 필요성과 의도를 구성원들에게 명확하고 설득력 있게 전달한다.",
+      "나는 목표와 방향을 팀원들이 수용하고 참여할 수 있는 구체적인 방법을 제시한다.",
+      "나는 설득 대상의 특성과 관심사를 AI에 반영하여 맥락에 맞는 설득 논리와 메시지를 설계한다."],
+  13:["나는 필요한 인적·물적 자원을 적재적소에 배분하여 팀의 성과를 극대화한다.",
+      "나는 목표 달성 수준에 따라 자원 공급을 탄력적으로 조정한다.",
+      "나는 반복적이고 정형화된 자원 배분 업무를 AI 자동화 도구를 통해 효율화하고 핵심 업무에 집중한다."],
+  14:["나는 실행 과정에서 발생 가능한 위험요인의 발생 가능성과 위험도를 체계적으로 평가한다.",
+      "나는 파악된 위험요인에 대한 구체적인 대응방안을 사전에 도출한다.",
+      "나는 주요 리스크 상황에 대한 대응 시나리오를 AI와 함께 설계하고 실행 매뉴얼로 구체화한다."],
+  15:["나는 계획 대비 업무 진행 과정에서 차질을 야기하는 문제를 신속하게 파악한다.",
+      "나는 발견된 문제에 대한 해결책을 찾아 팀에 제시한다.",
+      "나는 데이터에 기반하여 팀원에게 구체적이고 객관적인 성과 피드백을 제공한다."],
+  16:["나는 실패나 시행착오를 수용하고 이를 극복하는 긍정적·발전적 분위기를 팀 내에 조성한다.",
+      "나는 미흡한 결과가 발생했을 때 회복과 발전 가능성에 중점을 둔 해결안을 제시한다.",
+      "나는 현재 가용 자원과 상황을 AI에 제공하고 실현 가능한 대안을 도출하여 최적의 회복 경로를 선택한다."],
+  17:["나는 실행 결과의 성공 여부를 측정할 수 있는 명확한 기준을 사전에 마련한다.",
+      "나는 측정 기준과 실행 결과의 정합성을 체계적으로 확인한다.",
+      "나는 AI 도구를 활용하여 데이터나 보고서 내 수치의 정확성을 체계적으로 검증한다."],
+  18:["나는 자신이 알고 있는 것과 모르는 것을 명확하게 인식하고 구분한다.",
+      "나는 자신의 생각과 행동에 대해 주변으로부터 적극적으로 피드백을 요청한다.",
+      "나는 자신이 작성한 문서나 보고서를 AI에게 제공하고 논리 구조와 표현의 적절성을 객관적으로 검토받는다."],
+  19:["나는 경험에서 얻은 교훈을 구체적으로 적용할 수 있는 범위와 방법을 모색하고 실행한다.",
+      "나는 학습한 내용을 내재화하고 지속 가능하도록 표준화한다.",
+      "나는 새로운 개념이나 지식을 접할 때 AI를 개인 학습 도구로 활용하여 핵심 내용을 신속하게 이해하고 내재화한다."],
+  20:["나는 사업 결과의 평가와 검증을 바탕으로 혁신이 필요한 영역과 요구점을 도출한다.",
+      "나는 목표 달성을 위한 구체적인 혁신방안과 실행계획을 수립한다.",
+      "나는 AI를 활용하여 기존 프레임을 벗어난 'What if' 질문과 발산적 아이디어 탐색으로 혁신 방향을 모색한다."],
+  21:["나는 갈등 상황에서 조직의 이익에 부합하도록 이해관계자 간의 공동이익을 찾아낸다.",
+      "나는 공동이익을 바탕으로 다양한 조정안을 개발하고 이해관계자에게 제시한다.",
+      "나는 대립되는 양측 주장을 AI에 입력하여 감정을 배제한 객관적인 쟁점을 분석한다."],
+  22:["나는 업무 활동과 조직 목표·전략 간의 불일치(정렬오차)의 내용과 원인을 파악한다.",
+      "나는 정렬오차가 발생한 업무 활동을 조직의 목표와 전략에 부합하도록 조정한다.",
+      "나는 AI를 활용하여 각 과업이 조직의 상위 비전 및 전략 목표와 어떻게 연결되는지 논리적으로 점검한다."],
+  23:["나는 협업에 필요한 각 이해관계자의 역할과 책임을 명확하게 정한다.",
+      "나는 지속적인 협업이 가능하도록 이해관계자들과 정기적으로 상황을 공유한다.",
+      "나는 AI 기반 도구를 활용하여 주요 이해관계자와의 소통 패턴을 파악하고 협력 관계의 질을 지속적으로 관리한다."],
+  24:["나는 상황과 대상에 따라 가장 효과적인 소통 방식을 선택하여 활용한다.",
+      "나는 의도와 맥락이 왜곡되지 않도록 명확한 언어를 사용하여 전달한다.",
+      "나는 이메일이나 보고서 발송 전 AI 도구를 활용하여 목적 적합성과 표현의 정확성을 검토한다."],
+};
+const LIK_LABELS = ['①전혀 아님','②아님','③보통','④그러함','⑤매우 그러함'];
+
+/* ── STATE ── */
+let answers = {};
+let curPage  = 0;
+const PER_PAGE = 2; // 모바일 최적화: 페이지당 2역량(6문항)
+const TOTAL_PAGES = Math.ceil(24 / PER_PAGE);
+let radarInst = null;
+
+/* ── NAVIGATION ── */
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'diag') { buildPages(); showPage(0); }
+}
+
+/* ── BUILD PAGES ── */
+function buildPages() {
+  const body = document.getElementById('diag-body');
+  body.innerHTML = '';
+  for (let p = 0; p < TOTAL_PAGES; p++) {
+    const pageEl = document.createElement('div');
+    pageEl.className = 'd-page';
+    pageEl.id = 'pg-' + p;
+
+    const s = p * PER_PAGE + 1;
+    const e = Math.min(s + PER_PAGE - 1, 24);
+    let lastPid = null, section = null;
+
+    for (let c = s; c <= e; c++) {
+      const comp   = COMPS[c - 1];
+      const pillar = PILLARS.find(pl => pl.id === comp.pid);
+
+      if (pillar.id !== lastPid) {
+        lastPid = pillar.id;
+        section = document.createElement('div');
+        section.className = 'p-section';
+        section.innerHTML = `<div class="p-hdr" style="background:${pillar.color}">
+          <span class="p-hdr-icon">${pillar.icon}</span>
+          <span class="p-hdr-en">${pillar.en}</span>
+          <span class="p-hdr-kr">${pillar.kr}</span>
+        </div>`;
+        pageEl.appendChild(section);
+      }
+
+      // Card
+      const card = document.createElement('div');
+      card.className = 'c-card';
+      card.innerHTML = `<div class="c-title"><span class="c-num">${c}</span>${comp.name}</div>`;
+
+      QS[c].forEach((txt, qi) => {
+        const isU = qi === 2;
+        const key = `${c}_${qi}`;
+        const qDiv = document.createElement('div');
+        qDiv.className = 'q-row';
+        qDiv.innerHTML = `
+          <div class="q-label ${isU ? 'lbl-u' : 'lbl-r'}">${isU ? 'Upskill' : 'Reskill'}</div>
+          <div class="q-text">${txt}</div>
+          <div class="likert-block">
+            <div class="likert-list" id="lik-${key}">
+              ${LIK_LABELS.map((lbl, i) => `
+                <div class="lik-opt" id="opt-${key}-${i+1}" data-key="${key}" data-val="${i+1}">
+                  <div class="lik-circle">${i+1}</div>
+                  <span class="lik-text">${lbl}</span>
+                </div>`).join('')}
+            </div>
+          </div>`;
+        card.appendChild(qDiv);
+
+        // 이벤트: touchend(모바일) + click(PC) 둘 다 등록
+        for (let v = 1; v <= 5; v++) {
+          const optEl = qDiv.querySelector(`#opt-${key}-${v}`);
+          const handler = (e) => {
+            e.preventDefault();
+            pick(key, v);
+          };
+          optEl.addEventListener('touchend', handler, { passive: false });
+          optEl.addEventListener('click', handler);
+        }
+      });
+
+      section.appendChild(card);
+    }
+    body.appendChild(pageEl);
+  }
+}
+
+function pick(key, val) {
+  answers[key] = val;
+  // update visual
+  for (let v = 1; v <= 5; v++) {
+    const el = document.getElementById(`opt-${key}-${v}`);
+    if (el) el.classList.toggle('selected', v === val);
+  }
+  updateProg();
+}
+
+function updateProg() {
+  const done = Object.keys(answers).length;
+  const pct  = Math.round(done / 72 * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent   = pct + '%';
+  document.getElementById('hdr-counter').textContent = done + ' / 72 완료';
+}
+
+function showPage(idx) {
+  document.querySelectorAll('.d-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('pg-' + idx).classList.add('active');
+  curPage = idx;
+
+  // restore selections
+  const s = idx * PER_PAGE + 1, e = Math.min(s + PER_PAGE - 1, 24);
+  for (let c = s; c <= e; c++)
+    for (let q = 0; q < 3; q++) {
+      const key = `${c}_${q}`, v = answers[key];
+      if (v) for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById(`opt-${key}-${i}`);
+        if (el) el.classList.toggle('selected', i === v);
+      }
+    }
+
+  document.getElementById('btn-prev').style.visibility = idx === 0 ? 'hidden' : 'visible';
+  document.getElementById('btn-next').textContent = idx === TOTAL_PAGES - 1 ? '결과 보기 →' : '다음 →';
+  document.getElementById('warn-msg').style.display = 'none';
+  window.scrollTo(0, 0);
+}
+
+function changePage(dir) {
+  if (dir === 1) {
+    const s = curPage * PER_PAGE + 1, e = Math.min(s + PER_PAGE - 1, 24);
+    let missing = false;
+    outer: for (let c = s; c <= e; c++)
+      for (let q = 0; q < 3; q++)
+        if (!answers[`${c}_${q}`]) { missing = true; break outer; }
+
+    if (missing) { document.getElementById('warn-msg').style.display = 'block'; return; }
+    if (curPage === TOTAL_PAGES - 1) { showResult(); return; }
+  }
+  showPage(curPage + dir);
+}
+
+/* ── RESULTS ── */
+function showResult() {
+  go('result');
+
+  const cs = {};
+  for (let c = 1; c <= 24; c++) {
+    const r1 = answers[`${c}_0`]||0, r2 = answers[`${c}_1`]||0, u = answers[`${c}_2`]||0;
+    cs[c] = { r:(r1+r2)/2, u, avg:(r1+r2+u)/3 };
+  }
+
+  const pScore = {};
+  PILLARS.forEach(pl => {
+    pScore[pl.id] = pl.comps.reduce((s,c) => s + cs[c].avg, 0) / pl.comps.length;
+  });
+
+  const tot = Object.values(cs).reduce((s,v)=>s+v.avg,0)/24;
+  const rAv = Object.values(cs).reduce((s,v)=>s+v.r,0)/24;
+  const uAv = Object.values(cs).reduce((s,v)=>s+v.u,0)/24;
+
+  document.getElementById('tot-score').textContent = Math.round(tot/5*100);
+  document.getElementById('r-val').textContent = rAv.toFixed(1);
+  document.getElementById('u-val').textContent = uAv.toFixed(1);
+
+  const diff = rAv - uAv;
+  document.getElementById('ru-comment').textContent =
+    diff > 0.5
+      ? `인간 고유역량(Reskill)이 AI 증강역량(Upskill)보다 ${diff.toFixed(1)}점 높습니다. AI 협업 도구 활용 역량을 집중적으로 개발하는 것을 권장합니다.`
+      : diff < -0.5
+        ? `AI 증강역량(Upskill)이 인간 고유역량(Reskill)보다 높습니다. AI 도구 활용에 익숙하나 인간 본연의 판단력·관계 역량을 함께 강화하는 것을 권장합니다.`
+        : `Reskill과 Upskill이 균형 있게 발휘되고 있습니다. 역량군별 세부 결과를 바탕으로 집중 개발 영역을 선정하세요.`;
+
+  // Pillar bars
+  const barsEl = document.getElementById('pillar-bars');
+  barsEl.innerHTML = '';
+  PILLARS.forEach(pl => {
+    const sc = pScore[pl.id], pct = Math.round(sc/5*100);
+    barsEl.innerHTML += `
+      <div class="ps-row">
+        <div class="ps-name" style="color:${pl.color}">${pl.kr}</div>
+        <div class="ps-track"><div class="ps-fill" style="width:${pct}%;background:${pl.color}"></div></div>
+        <div class="ps-val">${sc.toFixed(1)}</div>
+      </div>`;
+  });
+
+  // Top / bottom
+  const sorted = Object.entries(cs).sort((a,b)=>b[1].avg-a[1].avg);
+  const strEl = document.getElementById('str-list');
+  const devEl = document.getElementById('dev-list');
+  strEl.innerHTML = ''; devEl.innerHTML = '';
+  sorted.slice(0,3).forEach(([no]) => {
+    strEl.innerHTML += `<li>⭐ ${no}. ${COMPS[+no-1].name} <strong>(${cs[no].avg.toFixed(1)})</strong></li>`;
+  });
+  sorted.slice(-3).reverse().forEach(([no]) => {
+    devEl.innerHTML += `<li>📌 ${no}. ${COMPS[+no-1].name} <strong>(${cs[no].avg.toFixed(1)})</strong></li>`;
+  });
+
+  // Recs
+  buildRecs(sorted.slice(-3).map(([no])=>+no), uAv);
+
+  // Radar
+  if (radarInst) { radarInst.destroy(); radarInst = null; }
+  setTimeout(() => {
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    radarInst = new Chart(ctx, {
+      type:'radar',
+      data:{
+        labels: PILLARS.map(p=>p.kr),
+        datasets:[{
+          label:'역량 수준',
+          data: PILLARS.map(p=>+pScore[p.id].toFixed(2)),
+          backgroundColor:'rgba(13,27,62,0.12)',
+          borderColor:'#0D1B3E',
+          borderWidth:2,
+          pointBackgroundColor:'#C9A84C',
+          pointRadius:5,
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:10}},
+          pointLabels:{font:{size:12,weight:'700',family:'Noto Sans KR'}},
+          grid:{color:'rgba(0,0,0,0.07)'}}},
+        plugins:{legend:{display:false}}
+      }
+    });
+  }, 150);
+}
+
+function buildRecs(devNos, uAv) {
+  const pool = {
+    sensing: {tag:'🔭 감지역량', title:'전략적 환경분석 및 Weak Signal 탐지 워크숍'},
+    insight: {tag:'🔍 해석역량', title:'데이터 기반 의사결정 및 비판적 사고 훈련'},
+    decision:{tag:'⚖️ 판단역량', title:'리더십 의사결정 시뮬레이션 과정'},
+    exec:    {tag:'🚀 실행역량', title:'OKR 기반 성과관리 및 복원력 강화 과정'},
+    reflect: {tag:'🪞 성찰역량', title:'리더 메타인지 및 학습민첩성 향상 프로그램'},
+    coord:   {tag:'🤝 조율역량', title:'갈등관리 및 조직 내 협력 커뮤니케이션'},
+  };
+  const recs = [];
+  devNos.forEach(no => {
+    const pid = COMPS[no-1].pid;
+    if (pool[pid]) { recs.push(pool[pid]); delete pool[pid]; }
+  });
+  if (uAv < 3.5) recs.push({tag:'🤖 AI 증강역량', title:'AI 협업 실전 활용 과정 (프롬프트 엔지니어링 포함)'});
+  recs.push({tag:'📊 종합', title:'EPOCHE 미래역량 리더십 심화 과정'});
+  const el = document.getElementById('rec-grid');
+  el.innerHTML = recs.slice(0,4).map(r=>`
+    <div class="rec-item">
+      <div class="rec-tag">${r.tag}</div>
+      <div class="rec-title">${r.title}</div>
+    </div>`).join('');
+}
+
+function restart() {
+  answers = {};
+  curPage  = 0;
+  go('landing');
+}
+</script>
+</body>
+</html>
